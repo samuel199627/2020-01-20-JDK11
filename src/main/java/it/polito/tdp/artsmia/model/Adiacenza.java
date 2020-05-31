@@ -1,5 +1,6 @@
 package it.polito.tdp.artsmia.model;
 
+//classe relativa alle coppie di artisti che devono essere collegate
 public class Adiacenza implements Comparable<Adiacenza> {
 	private Integer a1;
 	private Integer a2;
@@ -31,6 +32,7 @@ public class Adiacenza implements Comparable<Adiacenza> {
 		this.peso = peso;
 	}
 
+	//per poter ordinare le adiacenze in maniera decrescente per la stampa alla fine del punto 1
 	@Override
 	public int compareTo(Adiacenza o) {
 		return -this.peso.compareTo(o.getPeso());

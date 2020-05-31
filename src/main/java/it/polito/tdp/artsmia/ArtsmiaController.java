@@ -16,7 +16,23 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 //importato
-
+/*
+	Abbiamo artisti con relative opere d'arte in apposite tabelle in relazioni molte e molte.
+	
+	Ho un arco tra due artisti quando hanno delle opere esposte nelle stesse mostre e il peso e'
+	relativo al numero di mostre in cui hanno esposto insieme.
+	
+	Nel grafo e' andato ad inserire direttamente gli id degli artisti e non l'oggetto artista che
+	sarebbe stato piu' elegante sicuramente. Non si e' quindi neanche creato delle identity Map.
+	
+	Grafo semplice, pesato, non orientato.
+	
+	C'e' alla fine del punto 1 la stampa delle adiacenze che ci siamo creati in pratica.
+	
+	Dopo aver creato il grafo, nel punto 2 abbiamo una richiesta ricorsiva. Inserendo un artista
+	dobbiamo trovare il cammino piu' lungo con sempre gli stessi pesi sugli archi man mano che ci
+	muoviamo dalla partenza verso i primi vicini.
+ */
 public class ArtsmiaController {
 	
 	private Model model ;
@@ -47,13 +63,15 @@ public class ArtsmiaController {
 
     @FXML
     void doArtistiConnessi(ActionEvent event) {
+    	//stampa tutte le adiacenze, cioe' tutti gli archi del grafo che ci siamo creati in precedenza
     	txtResult.clear();
     	List<Adiacenza> adiacenze = this.model.getAdiacenze();
     	if(adiacenze == null) {
     		txtResult.appendText("DEVI CREARE PRIMA IL GRAFO");
     		return ;
     	}
-    	
+    	//ordina secondo l'ordinamento naturale che ci siamo andati a definire in Adiacenza che e'
+    	//l'ordinamento decrescente sui numeri
     	Collections.sort(adiacenze);
     	
     	for(Adiacenza a : adiacenze) {
@@ -66,7 +84,7 @@ public class ArtsmiaController {
     void doCalcolaPercorso(ActionEvent event) {
     	txtResult.clear();
     	Integer id;
-    	
+    	//controlliamo inizialmente il codice dell'artista inserito nella casella di testo
     	try {
     		id = Integer.parseInt(txtArtista.getText());
     	} catch(NumberFormatException e) {
@@ -74,13 +92,16 @@ public class ArtsmiaController {
     		return ;
     	}
     	
+    	//controlliamo se l'id e' presente
     	if(!this.model.grafoContiene(id)) {
     		txtResult.appendText("L'ARTISTA NON E' NEL GRAFO!\n");
     		return ;
     	}
     	
+    	//acquisisco il percorso
     	List<Integer> percorso = this.model.trovaPercorso(id);
     	txtResult.appendText("PERCORSO PIU' LUNGO: " + percorso.size() + " \n");
+    	//stampo il percorso, cioe' stampo gli id degli artisti che ho percorso man mano
     	for(Integer v : percorso) {
     		txtResult.appendText(v + " ");
     	}
@@ -100,16 +121,10 @@ public class ArtsmiaController {
     	txtResult.appendText(String.format("Grafo creato con %d vertici e %d archi", 
     			this.model.vertici(), this.model.archi()));
     	
+    	//quando ho il grafo creato do la possibilita' di calcolare il percorso
     	btnCalcolaPercorso.setDisable(false);
     	
     }
-
-    public void setModel(Model model) {
-    	this.model = model;
-    	btnCalcolaPercorso.setDisable(true);
-    	boxRuolo.getItems().addAll(this.model.getRuoli());
-    }
-
     
     @FXML
     void initialize() {
@@ -120,5 +135,13 @@ public class ArtsmiaController {
         assert txtArtista != null : "fx:id=\"txtArtista\" was not injected: check your FXML file 'Artsmia.fxml'.";
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Artsmia.fxml'.";
 
+    }
+    
+    public void setModel(Model model) {
+    	this.model = model;
+    	//prima devo crearmi un grafo rispetto a calcolare il percorso
+    	btnCalcolaPercorso.setDisable(true);
+    	//popolo la tendina da cui scegliere il ruolo per il punto 1
+    	boxRuolo.getItems().addAll(this.model.getRuoli());
     }
 }

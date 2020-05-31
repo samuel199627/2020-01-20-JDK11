@@ -65,6 +65,8 @@ public class ArtsmiaDAO {
 		}
 	}
 	
+	//per estrarre tutti i possibili vertici del grafo se ci mettiamo nel caso di voler anche 
+	//inserire in questo eventuali nodi che sono isolati
 	public List<Integer> getArtisti(String ruolo) {
 		String sql = "select a.artist_id from artists a, authorship au " +
 					"where a.artist_id = au.artist_id and au.role = ?";
@@ -85,6 +87,26 @@ public class ArtsmiaDAO {
 		}
 	}
 	
+	/*
+	 	Mi faccio dare direttamente tutti i collegamenti.
+	 	
+	 	Vogliamo estrarre coppie di artisti con un conteggio delle volte in cui hanno esposto insieme delle
+	 	opere.
+	 	Dobbiamo fare un join della tabella con se stessa per poter estrarre la coppia di artisti e unire 
+	 	anche altre tabelle per poter recuperare tutte le informazioni che ci servono sugli artisti che 
+	 	andiamo a verificare.
+	 	Autorship serve per recuperare il ruolo e ce ne servono 2 di tabelle perche' dobbiamo settare il 
+	 	ruolo per entrambi gli artisti. Stesso discorso vale per evere due tabelle che riguardano la 
+	 	tabella base di exhibition_oblects in quanto dobbiamoa legate un autore alle sue esibizioni.
+	 	Non ci serve la tabella objects perche' ci bastano le info che troviamo anche nelle altre.
+	 	
+	 	La parte della query qui sotto,
+	 	a1.artist_id > a2.artist_id
+	 	serve per evitare di avere lo stesso artista con se stesso e anche di avere le coppie invertite che
+	 	non servono.
+	 	
+	 	La group by serve per avere il conteggio relativo alla coppia di artisti che e' cio' che ci serve.
+	 */
 	public List<Adiacenza> getAdiacenze(String ruolo){
 		String sql = "select a1.artist_id AS a1, a2.artist_id AS a2, COUNT(DISTINCT eo1.exhibition_id) AS peso " + 
 				"from artists a1, artists a2, authorship au1, authorship au2, exhibition_objects eo1, exhibition_objects eo2 " + 
@@ -113,6 +135,7 @@ public class ArtsmiaDAO {
 		}
 	}
 
+	//serve per popolare il menu a tendina da cui scegliere il ruolo nel punto 1
 	public List<String> getRuoli() {
 		String sql = "SELECT DISTINCT role FROM authorship ORDER BY role ASC";
 		List<String> ruoli = new ArrayList<String>();
@@ -125,6 +148,7 @@ public class ArtsmiaDAO {
 			}
 			conn.close();
 			return ruoli;
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
